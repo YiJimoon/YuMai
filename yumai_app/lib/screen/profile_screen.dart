@@ -9,6 +9,7 @@ import '../services/api_services.dart';
 import 'bookshelf_screen.dart';
 import 'history_screen.dart';
 import 'downloads_screen.dart';
+import '../widgets/common_widgets.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String initialLang;
@@ -159,26 +160,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _logout() async {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    final surfaceColor = isDark
+        ? AppColors.darkSurface
+        : AppColors.lightSurface;
     final textPrimary = isDark ? AppColors.darkText : AppColors.lightText;
-    final textSecondary = isDark ? AppColors.darkTextSec : AppColors.lightTextSec;
+    final textSecondary = isDark
+        ? AppColors.darkTextSec
+        : AppColors.lightTextSec;
     final primary = Theme.of(context).colorScheme.primary;
 
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: surfaceColor,
-        title: Text(
-          _t('logoutConfirm'),
-          style: TextStyle(color: textPrimary),
-        ),
+        title: Text(_t('logoutConfirm'), style: TextStyle(color: textPrimary)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(
-              _t('cancel'),
-              style: TextStyle(color: textSecondary),
-            ),
+            child: Text(_t('cancel'), style: TextStyle(color: textSecondary)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -199,43 +198,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void _saveLanguage(String lang) {
-    context.read<LanguageProvider>().setLanguage(lang);
-  }
-
-  // 语言切换选项
-  Widget _buildLangOption(String lang, String label) {
-    final primary = Theme.of(context).colorScheme.primary;
-    final isActive = _currentLang == lang;
-    return GestureDetector(
-      onTap: () => _saveLanguage(lang),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isActive ? primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isActive ? Colors.white : Theme.of(context).colorScheme.onSurface,
-            fontSize: 14,
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
     final primary = Theme.of(context).colorScheme.primary;
     final secondary = Theme.of(context).colorScheme.secondary;
-    final surfaceColor = isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    final surfaceColor = isDark
+        ? AppColors.darkSurface
+        : AppColors.lightSurface;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
     final textPrimary = isDark ? AppColors.darkText : AppColors.lightText;
-    final textSecondary = isDark ? AppColors.darkTextSec : AppColors.lightTextSec;
+    final textSecondary = isDark
+        ? AppColors.darkTextSec
+        : AppColors.lightTextSec;
     final danger = AppColors.danger;
 
     return Scaffold(
@@ -267,18 +243,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   // Language switcher
-                  Container(
-                    decoration: BoxDecoration(
-                      color: surfaceColor,
-                      borderRadius: BorderRadius.circular(40),
-                      border: Border.all(color: borderColor),
-                    ),
-                    child: Row(
-                      children: [
-                        _buildLangOption('zh', '汉'),
-                        _buildLangOption('bo', '藏'),
-                        _buildLangOption('ii', '彝'),
-                      ],
+                  buildLanguageSwitcher(
+                    fontSize: 14,
+                    iconSize: 16,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 5,
                     ),
                   ),
                 ],
@@ -377,9 +347,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => BookshelfScreen(
-                              initialLang: _currentLang,
-                            ),
+                            builder: (context) =>
+                                BookshelfScreen(initialLang: _currentLang),
                           ),
                         );
                       },
@@ -424,9 +393,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => DownloadsScreen(
-                              initialLang: _currentLang,
-                            ),
+                            builder: (context) =>
+                                DownloadsScreen(initialLang: _currentLang),
                           ),
                         );
                       },
@@ -435,10 +403,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 24),
 
                     // Divider
-                    Container(
-                      height: 1,
-                      color: borderColor,
-                    ),
+                    Container(height: 1, color: borderColor),
 
                     const SizedBox(height: 24),
 
@@ -490,18 +455,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.logout,
-                              size: 18,
-                              color: danger,
-                            ),
+                            Icon(Icons.logout, size: 18, color: danger),
                             const SizedBox(width: 8),
                             Text(
                               _t('logout'),
-                              style: TextStyle(
-                                color: danger,
-                                fontSize: 14,
-                              ),
+                              style: TextStyle(color: danger, fontSize: 14),
                             ),
                           ],
                         ),
@@ -521,9 +479,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showSettingsDialog(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    final surfaceColor = isDark
+        ? AppColors.darkSurface
+        : AppColors.lightSurface;
     final textPrimary = isDark ? AppColors.darkText : AppColors.lightText;
-    final textSecondary = isDark ? AppColors.darkTextSec : AppColors.lightTextSec;
+    final textSecondary = isDark
+        ? AppColors.darkTextSec
+        : AppColors.lightTextSec;
 
     showDialog(
       context: context,
@@ -564,18 +526,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showAboutDialog(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    final surfaceColor = isDark
+        ? AppColors.darkSurface
+        : AppColors.lightSurface;
     final textPrimary = isDark ? AppColors.darkText : AppColors.lightText;
-    final textSecondary = isDark ? AppColors.darkTextSec : AppColors.lightTextSec;
+    final textSecondary = isDark
+        ? AppColors.darkTextSec
+        : AppColors.lightTextSec;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: surfaceColor,
-        title: Text(
-          _t('aboutTitle'),
-          style: TextStyle(color: textPrimary),
-        ),
+        title: Text(_t('aboutTitle'), style: TextStyle(color: textPrimary)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -659,11 +622,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: primary.withAlpha(25),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                size: 24,
-                color: primary,
-              ),
+              child: Icon(icon, size: 24, color: primary),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -681,17 +640,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: textSecondary,
-                    ),
+                    style: TextStyle(fontSize: 12, color: textSecondary),
                   ),
                 ],
               ),
             ),
             if (badge > 0)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: primary,
                   borderRadius: BorderRadius.circular(20),
@@ -706,10 +665,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             const SizedBox(width: 4),
-            Icon(
-              Icons.chevron_right,
-              color: textSecondary,
-            ),
+            Icon(Icons.chevron_right, color: textSecondary),
           ],
         ),
       ),

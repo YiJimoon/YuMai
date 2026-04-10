@@ -129,9 +129,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
     try {
       final dt = DateTime.parse(dateStr);
       final now = DateTime.now();
-      if (dt.year == now.year && dt.month == now.month && dt.day == now.day) return _t('today');
+      if (dt.year == now.year && dt.month == now.month && dt.day == now.day)
+        return _t('today');
       final yesterday = now.subtract(const Duration(days: 1));
-      if (dt.year == yesterday.year && dt.month == yesterday.month && dt.day == yesterday.day) return _t('yesterday');
+      if (dt.year == yesterday.year &&
+          dt.month == yesterday.month &&
+          dt.day == yesterday.day)
+        return _t('yesterday');
       return _t('earlier');
     } catch (_) {
       return _t('earlier');
@@ -144,8 +148,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
       final dt = DateTime.parse(dateStr);
       final diff = DateTime.now().difference(dt);
       if (diff.inMinutes < 1) return _t('justNow');
-      if (diff.inMinutes < 60) return _t('minutes').replaceAll('{n}', '${diff.inMinutes}');
-      if (diff.inHours < 24) return _t('hours').replaceAll('{n}', '${diff.inHours}');
+      if (diff.inMinutes < 60)
+        return _t('minutes').replaceAll('{n}', '${diff.inMinutes}');
+      if (diff.inHours < 24)
+        return _t('hours').replaceAll('{n}', '${diff.inHours}');
       return _t('days').replaceAll('{n}', '${diff.inDays}');
     } catch (_) {
       return '';
@@ -158,10 +164,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
       builder: (ctx) => AlertDialog(
         title: Text(_t('confirmClear')),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(_t('cancel'))),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(_t('cancel')),
+          ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+            ),
             child: Text(_t('confirm')),
           ),
         ],
@@ -200,7 +212,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
         child: Text(
           label,
           style: TextStyle(
-            color: isActive ? Colors.white : (isDark ? AppColors.darkText : AppColors.lightText),
+            color: isActive
+                ? Colors.white
+                : (isDark ? AppColors.darkText : AppColors.lightText),
             fontSize: 14,
           ),
         ),
@@ -215,10 +229,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final primary = Theme.of(context).colorScheme.primary;
     final secondary = Theme.of(context).colorScheme.secondary;
     final backgroundColor = isDark ? AppColors.darkBg : AppColors.lightBg;
-    final surfaceColor = isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    final surfaceColor = isDark
+        ? AppColors.darkSurface
+        : AppColors.lightSurface;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
     final textPrimary = isDark ? AppColors.darkText : AppColors.lightText;
-    final textSecondary = isDark ? AppColors.darkTextSec : AppColors.lightTextSec;
+    final textSecondary = isDark
+        ? AppColors.darkTextSec
+        : AppColors.lightTextSec;
     final danger = AppColors.danger;
 
     // 按时间倒序排列
@@ -251,7 +269,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         color: surfaceColor,
                         borderRadius: BorderRadius.circular(30),
@@ -260,9 +281,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.arrow_back_rounded, size: 18, color: textPrimary),
+                          Icon(
+                            Icons.arrow_back_rounded,
+                            size: 18,
+                            color: textPrimary,
+                          ),
                           const SizedBox(width: 8),
-                          Text(_t('back'), style: TextStyle(fontSize: 14, color: textPrimary)),
+                          Text(
+                            _t('back'),
+                            style: TextStyle(fontSize: 14, color: textPrimary),
+                          ),
                         ],
                       ),
                     ),
@@ -276,18 +304,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       letterSpacing: 2,
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: surfaceColor,
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(color: borderColor),
-                    ),
-                    child: Row(
-                      children: [
-                        _buildLangOption('zh', '汉'),
-                        _buildLangOption('bo', '藏'),
-                        _buildLangOption('ii', '彝'),
-                      ],
+                  buildLanguageSwitcher(
+                    fontSize: 14,
+                    iconSize: 16,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 5,
                     ),
                   ),
                 ],
@@ -300,9 +322,26 @@ class _HistoryScreenState extends State<HistoryScreen> {
               child: Wrap(
                 spacing: 16,
                 children: [
-                  Text('ལོ་རྒྱུས།', style: TextStyle(fontSize: 12, color: textSecondary, fontFamily: 'Noto Serif Tibetan')),
-                  Text('·', style: TextStyle(fontSize: 12, color: textSecondary)),
-                  Text('ꐘꀨ', style: TextStyle(fontSize: 12, color: textSecondary, fontFamily: 'Noto Sans Yi')),
+                  Text(
+                    'ལོ་རྒྱུས།',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: textSecondary,
+                      fontFamily: 'Noto Serif Tibetan',
+                    ),
+                  ),
+                  Text(
+                    '·',
+                    style: TextStyle(fontSize: 12, color: textSecondary),
+                  ),
+                  Text(
+                    'ꐘꀨ',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: textSecondary,
+                      fontFamily: 'Noto Sans Yi',
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -311,75 +350,120 @@ class _HistoryScreenState extends State<HistoryScreen> {
               child: _isLoading
                   ? Center(child: CircularProgressIndicator(color: primary))
                   : _history.isEmpty
-                      ? _buildEmptyState(primary, textPrimary, textSecondary)
-                      : ListView(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          children: [
-                            // 统计卡片
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: surfaceColor,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: borderColor),
+                  ? _buildEmptyState(primary, textPrimary, textSecondary)
+                  : ListView(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      children: [
+                        // 统计卡片
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: surfaceColor,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: borderColor),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: primary.withAlpha(25),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.history,
+                                  size: 24,
+                                  color: primary,
+                                ),
                               ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 48,
-                                    height: 48,
-                                    decoration: BoxDecoration(
-                                      color: primary.withAlpha(25),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Icon(Icons.history, size: 24, color: primary),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(_t('statsLabel'), style: TextStyle(fontSize: 14, color: textSecondary)),
-                                        const SizedBox(height: 4),
-                                        Text(_history.length.toString(), style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: primary)),
-                                      ],
-                                    ),
-                                  ),
-                                  if (_history.isNotEmpty)
-                                    GestureDetector(
-                                      onTap: _clearHistory,
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                        decoration: BoxDecoration(
-                                          color: danger.withAlpha(25),
-                                          borderRadius: BorderRadius.circular(30),
-                                          border: Border.all(color: danger),
-                                        ),
-                                        child: Text(_t('clearAll'), style: TextStyle(color: danger, fontSize: 14)),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _t('statsLabel'),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: textSecondary,
                                       ),
                                     ),
-                                ],
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      _history.length.toString(),
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w600,
+                                        color: primary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 24),
-                            // 分组列表
-                            ...groupOrder.map((groupName) {
-                              final records = groups[groupName];
-                              if (records == null || records.isEmpty) return const SizedBox();
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 12),
-                                    child: Text(groupName, style: TextStyle(fontSize: 14, color: textSecondary, fontWeight: FontWeight.w500)),
+                              if (_history.isNotEmpty)
+                                GestureDetector(
+                                  onTap: _clearHistory,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: danger.withAlpha(25),
+                                      borderRadius: BorderRadius.circular(30),
+                                      border: Border.all(color: danger),
+                                    ),
+                                    child: Text(
+                                      _t('clearAll'),
+                                      style: TextStyle(
+                                        color: danger,
+                                        fontSize: 14,
+                                      ),
+                                    ),
                                   ),
-                                  ...records.map((record) => _buildTimelineItem(record, primary, secondary, surfaceColor, borderColor, textPrimary, textSecondary, danger)),
-                                  const SizedBox(height: 16),
-                                ],
-                              );
-                            }),
-                          ],
+                                ),
+                            ],
+                          ),
                         ),
+                        const SizedBox(height: 24),
+                        // 分组列表
+                        ...groupOrder.map((groupName) {
+                          final records = groups[groupName];
+                          if (records == null || records.isEmpty)
+                            return const SizedBox();
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: Text(
+                                  groupName,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: textSecondary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                              ...records.map(
+                                (record) => _buildTimelineItem(
+                                  record,
+                                  primary,
+                                  secondary,
+                                  surfaceColor,
+                                  borderColor,
+                                  textPrimary,
+                                  textSecondary,
+                                  danger,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                          );
+                        }),
+                      ],
+                    ),
             ),
           ],
         ),
@@ -387,13 +471,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildEmptyState(Color primary, Color textPrimary, Color textSecondary) {
+  Widget _buildEmptyState(
+    Color primary,
+    Color textPrimary,
+    Color textSecondary,
+  ) {
     return EmptyStateWidget(
       icon: Icons.history,
       title: _t('empty'),
       subtitle: _t('emptyDesc'),
       onAction: () {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => StoryListScreen(initialLang: _currentLang)));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StoryListScreen(initialLang: _currentLang),
+          ),
+        );
       },
       actionText: _t('browse'),
     );
@@ -412,7 +505,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final viewedDate = DateTime.parse(record['viewedAt']);
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => StoryDetailScreen(storyId: record['storyId'], initialLang: _currentLang)));
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StoryDetailScreen(
+              storyId: record['storyId'],
+              initialLang: _currentLang,
+            ),
+          ),
+        );
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
@@ -434,8 +535,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
               child: Column(
                 children: [
-                  Text(viewedDate.day.toString(), style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: primary)),
-                  Text('${viewedDate.month}月', style: TextStyle(fontSize: 11, color: textSecondary)),
+                  Text(
+                    viewedDate.day.toString(),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: primary,
+                    ),
+                  ),
+                  Text(
+                    '${viewedDate.month}月',
+                    style: TextStyle(fontSize: 11, color: textSecondary),
+                  ),
                 ],
               ),
             ),
@@ -458,19 +569,30 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 children: [
                   Text(
                     record['title'] ?? '未知故事',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: textPrimary),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: textPrimary,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (record['ethnic'] != null && record['ethnic'].isNotEmpty) ...[
+                  if (record['ethnic'] != null &&
+                      record['ethnic'].isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: secondary.withAlpha(38),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Text(record['ethnic'], style: TextStyle(fontSize: 10, color: secondary)),
+                      child: Text(
+                        record['ethnic'],
+                        style: TextStyle(fontSize: 10, color: secondary),
+                      ),
                     ),
                   ],
                 ],
@@ -480,7 +602,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(_formatRelativeTime(record['viewedAt']), style: TextStyle(fontSize: 11, color: textSecondary)),
+                Text(
+                  _formatRelativeTime(record['viewedAt']),
+                  style: TextStyle(fontSize: 11, color: textSecondary),
+                ),
                 const SizedBox(height: 4),
                 GestureDetector(
                   onTap: () => _removeFromHistory(record['id']),

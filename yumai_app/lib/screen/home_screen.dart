@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import '../theme/theme_provider.dart';
 import '../services/language_provider.dart';
 import '../services/translations.dart';
+import '../widgets/common_widgets.dart';
 
 class HomeScreen extends StatefulWidget {
   final String initialLang;
@@ -54,7 +55,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final primary = Theme.of(context).colorScheme.primary;
     final secondary = Theme.of(context).colorScheme.secondary;
     final textPrimary = isDark ? AppColors.darkText : AppColors.lightText;
-    final textSecondary = isDark ? AppColors.darkTextSec : AppColors.lightTextSec;
+    final textSecondary = isDark
+        ? AppColors.darkTextSec
+        : AppColors.lightTextSec;
     final surface = isDark ? AppColors.darkSurface : AppColors.lightSurface;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
     final backgroundColor = isDark ? AppColors.darkBg : AppColors.lightBg;
@@ -163,7 +166,11 @@ class _TopBar extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Icon(Icons.auto_stories, color: Colors.white, size: 18),
+            child: const Icon(
+              Icons.auto_stories,
+              color: Colors.white,
+              size: 18,
+            ),
           ),
           const SizedBox(width: 8),
           Text(
@@ -179,50 +186,11 @@ class _TopBar extends StatelessWidget {
           const Spacer(),
 
           // 语言切换
-          Container(
+          // 语言切换（公共组件）
+          buildLanguageSwitcher(
+            fontSize: 14,
+            iconSize: 16,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            decoration: BoxDecoration(
-              color: surface,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: borderColor),
-            ),
-            child: PopupMenuButton<String>(
-              onSelected: onLanguageChange,
-              offset: const Offset(0, 40),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              color: surface,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.language, size: 14, color: textSecondary),
-                  const SizedBox(width: 5),
-                  Text(currentLangData['name'] ?? '汉语', style: TextStyle(color: textSecondary, fontSize: 12)),
-                  Icon(Icons.arrow_drop_down, color: textSecondary, size: 18),
-                ],
-              ),
-              itemBuilder: (ctx) => languages.map((lang) {
-                final isSelected = lang['code'] == currentLang;
-                return PopupMenuItem<String>(
-                  value: lang['code']!,
-                  child: Row(
-                    children: [
-                      Text(
-                        '${lang['name']} · ${lang['native']}',
-                        style: TextStyle(
-                          color: isSelected ? primary : textSecondary,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                          fontSize: 12,
-                        ),
-                      ),
-                      if (isSelected) ...[
-                        const Spacer(),
-                        Icon(Icons.check, color: primary, size: 15),
-                      ],
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
           ),
 
           const SizedBox(width: 8),
@@ -329,7 +297,11 @@ class _HeroContent extends StatelessWidget {
             children: [
               _LangDot(label: '汉语', color: AppColors.hanGold, isDark: isDark),
               _dotSeparator(textSecondary),
-              _LangDot(label: '藏语', color: AppColors.tibetanRed, isDark: isDark),
+              _LangDot(
+                label: '藏语',
+                color: AppColors.tibetanRed,
+                isDark: isDark,
+              ),
               _dotSeparator(textSecondary),
               _LangDot(label: '彝语', color: AppColors.yiGreen, isDark: isDark),
             ],
@@ -363,7 +335,8 @@ class _HeroContent extends StatelessWidget {
     );
   }
 
-  Color get borderColor => isDark ? AppColors.darkBorder : AppColors.lightBorder;
+  Color get borderColor =>
+      isDark ? AppColors.darkBorder : AppColors.lightBorder;
 }
 
 class _LangDot extends StatelessWidget {
@@ -371,7 +344,11 @@ class _LangDot extends StatelessWidget {
   final Color color;
   final bool isDark;
 
-  const _LangDot({required this.label, required this.color, required this.isDark});
+  const _LangDot({
+    required this.label,
+    required this.color,
+    required this.isDark,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -381,10 +358,7 @@ class _LangDot extends StatelessWidget {
         Container(
           width: 8,
           height: 8,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 5),
         Text(
@@ -402,7 +376,10 @@ class _LangDot extends StatelessWidget {
 
 Widget _dotSeparator(Color textSecondary) => Padding(
   padding: const EdgeInsets.symmetric(horizontal: 10),
-  child: Text('·', style: TextStyle(color: textSecondary.withAlpha(100), fontSize: 16)),
+  child: Text(
+    '·',
+    style: TextStyle(color: textSecondary.withAlpha(100), fontSize: 16),
+  ),
 );
 
 // ============ 进入按钮 ============
@@ -411,7 +388,11 @@ class _EnterButton extends StatelessWidget {
   final VoidCallback? onTap;
   final String ctaText;
 
-  const _EnterButton({required this.primary, this.onTap, required this.ctaText});
+  const _EnterButton({
+    required this.primary,
+    this.onTap,
+    required this.ctaText,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -454,7 +435,11 @@ class _EnterButton extends StatelessWidget {
                 color: Colors.white,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.arrow_forward_rounded, color: primary, size: 16),
+              child: Icon(
+                Icons.arrow_forward_rounded,
+                color: primary,
+                size: 16,
+              ),
             ),
           ],
         ),

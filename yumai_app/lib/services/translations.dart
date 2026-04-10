@@ -131,7 +131,7 @@ class AppTranslations {
     },
     'bo': {
       'subtitle1': 'བོད་ཡི་རྒྱ་གསུམ་ཤེས་ཡོན།',
-      'subtitle2': 'མི་རིགས་ས� minor གི་གསར་བསྐྲུན་གཏམ་རྒྱུད་འཚོལ་བ།',
+      'subtitle2': 'མི་རིགས་ཆུང་ངུའི་སྲོལ་རྒྱུན་གཏམ་རྒྱུད་འཚོལ་བ',
       'subtitle3': 'གསར་བསྐྲུན་གཏམ་རྒྱུད། · སྐད་གསུམ་རྒྱུད་སྤྲོད།',
       'cta': 'འཚོལ་བ་འགོ་སློང་།',
       'langZh': 'བོད་སྐད།',
@@ -276,7 +276,8 @@ class AppTranslations {
       'requestFailed': 'རེག་ཐུབ་མ་ཐུབ།',
       'playing': 'ལེན།',
       'askPrompt': 'གཏམ་རྒྱུད་འདིའི་སྐོར་AIལ་དྲས།',
-      'examplePrompt': 'དཔེར་ན། གཏམ་རྒྱུད་ཀྱི་གཙོ་བོ་སུ་ཡིན། ཇི་ལྟར་གྱི་བསླབ་བྱ་ཞིག་བཤད་ཡོད།',
+      'examplePrompt':
+          'དཔེར་ན། གཏམ་རྒྱུད་ཀྱི་གཙོ་བོ་སུ་ཡིན། ཇི་ལྟར་གྱི་བསླབ་བྱ་ཞིག་བཤད་ཡོད།',
     },
     'ii': {
       'loadFailed': 'ꀉꂿꄯꒉ ꃅꇢꇬꄉ ꐘ',
@@ -315,24 +316,14 @@ class AppTranslations {
 
   // ========== 底部导航 ==========
   static const Map<String, Map<String, String>> bottomNav = {
-    'zh': {
-      'home': '首页',
-      'stories': '故事',
-      'qa': '问答',
-      'profile': '我的',
-    },
+    'zh': {'home': '首页', 'stories': '故事', 'qa': '问答', 'profile': '我的'},
     'bo': {
       'home': 'གྲོས་མགོ།',
       'stories': 'གཏམ་རྒྱུད།',
       'qa': 'དྲི་བ།',
       'profile': 'ང་།',
     },
-    'ii': {
-      'home': 'ꀀꋅ',
-      'stories': 'ꀉꂿꄯꒉ',
-      'qa': 'ꌠꅇ',
-      'profile': 'ꀭꅏ',
-    },
+    'ii': {'home': 'ꀀꋅ', 'stories': 'ꀉꂿꄯꒉ', 'qa': 'ꌠꅇ', 'profile': 'ꀭꅏ'},
   };
 
   // ========== 个人中心 ==========
@@ -401,7 +392,12 @@ class AppTranslations {
   /// [section] 翻译分区：common / home / storyList / profile
   /// [key] 翻译键名
   /// [params] 可选参数，用于替换字符串中的占位符（如 {count}）
-  static String t(String lang, String section, String key, [Map<String, String>? params]) {
+  static String t(
+    String lang,
+    String section,
+    String key, [
+    Map<String, String>? params,
+  ]) {
     final sectionMap = _getSection(section);
     final langMap = sectionMap[lang] ?? sectionMap['zh']!;
     String result = langMap[key] ?? sectionMap['zh']![key] ?? key;

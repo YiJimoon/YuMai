@@ -19,15 +19,20 @@ class AskRequest(BaseModel):
     history: Optional[List[HistoryMessage]] = None
     lang: str = 'zh'   # 问答语言：zh/bo/ii
 
-
+    
 @router.post("/ask")
 def ask_question(data: AskRequest):
     try:
-        # 转换 history 格式
         history = None
         if data.history:
             history = [{"role": m.role, "content": m.content} for m in data.history]
-        answer = answer_question(data.story_id, data.question, data.use_rag, history, lang=data.lang)
+        answer = answer_question(
+            data.story_id,
+            data.question,
+            data.use_rag,
+            history,
+            lang=data.lang   # 传递语言参数
+        )
         return answer
     except Exception as e:
         print("ERROR:", e)

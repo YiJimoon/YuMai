@@ -34,7 +34,8 @@ class _StoryListScreenState extends State<StoryListScreen> {
   Timer? _searchDebounce;
 
   // 多语言翻译 - 直接初始化，确保 build() 前就已准备好
-  final Map<String, Map<String, String>> _translations = AppTranslations.storyList;
+  final Map<String, Map<String, String>> _translations =
+      AppTranslations.storyList;
 
   // 记录上一次的语言，用于避免重复加载
   String? _previousLang;
@@ -228,7 +229,14 @@ class _StoryListScreenState extends State<StoryListScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(context, textPrimary, textSecondary, primary, borderColor, surfaceColor),
+            _buildHeader(
+              context,
+              textPrimary,
+              textSecondary,
+              primary,
+              borderColor,
+              surfaceColor,
+            ),
             Expanded(
               child: LoadingOverlay(
                 isLoading: _isLoading || _isSearching,
@@ -280,7 +288,6 @@ class _StoryListScreenState extends State<StoryListScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Column(
         children: [
-          // Page title with back button
           Row(
             children: [
               IconButton(
@@ -300,7 +307,14 @@ class _StoryListScreenState extends State<StoryListScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 48), // balance the back button
+              buildLanguageSwitcher(
+                fontSize: 14,
+                iconSize: 16,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 5,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 4),
@@ -316,10 +330,7 @@ class _StoryListScreenState extends State<StoryListScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              Text(
-                '·',
-                style: TextStyle(fontSize: 12, color: textSecondary),
-              ),
+              Text('·', style: TextStyle(fontSize: 12, color: textSecondary)),
               const SizedBox(width: 12),
               Text(
                 _t('pageTitleSubIi'),
@@ -330,31 +341,6 @@ class _StoryListScreenState extends State<StoryListScreen> {
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 16),
-          // Language indicator
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            decoration: BoxDecoration(
-              color: surfaceColor,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: borderColor),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.language, size: 14, color: textSecondary),
-                const SizedBox(width: 6),
-                Text(
-                  _currentLang == 'zh'
-                      ? '汉语'
-                      : _currentLang == 'bo'
-                      ? '藏语'
-                      : '彝语',
-                  style: TextStyle(fontSize: 13, color: textPrimary),
-                ),
-              ],
-            ),
           ),
         ],
       ),
@@ -543,18 +529,11 @@ class _StoryListScreenState extends State<StoryListScreen> {
             padding: const EdgeInsets.all(40),
             child: Column(
               children: [
-                Icon(
-                  Icons.search_off,
-                  size: 64,
-                  color: textSecondary,
-                ),
+                Icon(Icons.search_off, size: 64, color: textSecondary),
                 const SizedBox(height: 16),
                 Text(
                   _t('noResults').replaceAll('#{query}', _searchQuery),
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: textPrimary,
-                  ),
+                  style: TextStyle(fontSize: 18, color: textPrimary),
                 ),
                 const SizedBox(height: 8),
                 TextButton(
@@ -699,11 +678,7 @@ class _StoryListScreenState extends State<StoryListScreen> {
                     height: double.infinity,
                     color: borderColor,
                     child: Center(
-                      child: Icon(
-                        Icons.broken_image,
-                        size: 40,
-                        color: primary,
-                      ),
+                      child: Icon(Icons.broken_image, size: 40, color: primary),
                     ),
                   ),
                 ),
@@ -820,7 +795,9 @@ class _StoryListScreenState extends State<StoryListScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            _t('storyCount').replaceAll('{count}', '${_displayedStories.length}'),
+            _t(
+              'storyCount',
+            ).replaceAll('{count}', '${_displayedStories.length}'),
             style: TextStyle(color: textSecondary, fontSize: 13),
           ),
           const SizedBox(width: 30),

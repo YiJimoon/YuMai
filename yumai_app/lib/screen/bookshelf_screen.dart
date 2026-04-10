@@ -81,10 +81,6 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
     }
   }
 
-  void _saveLanguage(String lang) {
-    context.read<LanguageProvider>().setLanguage(lang);
-  }
-
   @override
   void initState() {
     super.initState();
@@ -98,7 +94,9 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
       final String? data = prefs.getString(_bookshelfKey);
       if (data != null) {
         final List<dynamic> list = json.decode(data);
-        _bookshelf = list.map((item) => Map<String, dynamic>.from(item)).toList();
+        _bookshelf = list
+            .map((item) => Map<String, dynamic>.from(item))
+            .toList();
       }
     } catch (e) {
       // ignore
@@ -129,33 +127,12 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
     final String? data = prefs.getString(_bookshelfKey);
     if (data != null) {
       final List<dynamic> list = json.decode(data);
-      final updated = list.where((item) => item['id'].toString() != storyId).toList();
+      final updated = list
+          .where((item) => item['id'].toString() != storyId)
+          .toList();
       await prefs.setString(_bookshelfKey, json.encode(updated));
       await _loadBookshelf();
     }
-  }
-
-  Widget _buildLangOption(String lang, String label) {
-    final isActive = _currentLang == lang;
-    final primary = Theme.of(context).colorScheme.primary;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return GestureDetector(
-      onTap: () => _saveLanguage(lang),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isActive ? primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isActive ? Colors.white : (isDark ? AppColors.darkText : AppColors.lightText),
-            fontSize: 14,
-          ),
-        ),
-      ),
-    );
   }
 
   @override
@@ -165,10 +142,14 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
     final primary = Theme.of(context).colorScheme.primary;
     final secondary = Theme.of(context).colorScheme.secondary;
     final backgroundColor = isDark ? AppColors.darkBg : AppColors.lightBg;
-    final surfaceColor = isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    final surfaceColor = isDark
+        ? AppColors.darkSurface
+        : AppColors.lightSurface;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
     final textPrimary = isDark ? AppColors.darkText : AppColors.lightText;
-    final textSecondary = isDark ? AppColors.darkTextSec : AppColors.lightTextSec;
+    final textSecondary = isDark
+        ? AppColors.darkTextSec
+        : AppColors.lightTextSec;
     final danger = AppColors.danger;
 
     return Scaffold(
@@ -185,7 +166,10 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         color: surfaceColor,
                         borderRadius: BorderRadius.circular(30),
@@ -194,9 +178,16 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.arrow_back_rounded, size: 18, color: textPrimary),
+                          Icon(
+                            Icons.arrow_back_rounded,
+                            size: 18,
+                            color: textPrimary,
+                          ),
                           const SizedBox(width: 8),
-                          Text(_t('back'), style: TextStyle(fontSize: 14, color: textPrimary)),
+                          Text(
+                            _t('back'),
+                            style: TextStyle(fontSize: 14, color: textPrimary),
+                          ),
                         ],
                       ),
                     ),
@@ -210,18 +201,12 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
                       letterSpacing: 2,
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: surfaceColor,
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(color: borderColor),
-                    ),
-                    child: Row(
-                      children: [
-                        _buildLangOption('zh', '汉'),
-                        _buildLangOption('bo', '藏'),
-                        _buildLangOption('ii', '彝'),
-                      ],
+                  buildLanguageSwitcher(
+                    fontSize: 14,
+                    iconSize: 16,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 5,
                     ),
                   ),
                 ],
@@ -234,9 +219,26 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
               child: Wrap(
                 spacing: 16,
                 children: [
-                  Text('ཕབ་ལེན།', style: TextStyle(fontSize: 12, color: textSecondary, fontFamily: 'Noto Serif Tibetan')),
-                  Text('·', style: TextStyle(fontSize: 12, color: textSecondary)),
-                  Text('ꌠꅇꂘ', style: TextStyle(fontSize: 12, color: textSecondary, fontFamily: 'Noto Sans Yi')),
+                  Text(
+                    'ཕབ་ལེན།',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: textSecondary,
+                      fontFamily: 'Noto Serif Tibetan',
+                    ),
+                  ),
+                  Text(
+                    '·',
+                    style: TextStyle(fontSize: 12, color: textSecondary),
+                  ),
+                  Text(
+                    'ꌠꅇꂘ',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: textSecondary,
+                      fontFamily: 'Noto Sans Yi',
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -245,18 +247,28 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
               child: _isLoading
                   ? Center(child: CircularProgressIndicator(color: primary))
                   : _bookshelf.isEmpty
-                      ? _buildEmptyState(primary, textPrimary, textSecondary)
-                      : GridView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  ? _buildEmptyState(primary, textPrimary, textSecondary)
+                  : GridView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      gridDelegate:
+                          const SliverGridDelegateWithMaxCrossAxisExtent(
                             maxCrossAxisExtent: 280,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
                             childAspectRatio: 1.2,
                           ),
-                          itemCount: _bookshelf.length,
-                          itemBuilder: (context, index) => _buildStoryCard(_bookshelf[index], primary, secondary, surfaceColor, borderColor, textPrimary, textSecondary, danger),
-                        ),
+                      itemCount: _bookshelf.length,
+                      itemBuilder: (context, index) => _buildStoryCard(
+                        _bookshelf[index],
+                        primary,
+                        secondary,
+                        surfaceColor,
+                        borderColor,
+                        textPrimary,
+                        textSecondary,
+                        danger,
+                      ),
+                    ),
             ),
           ],
         ),
@@ -264,13 +276,22 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
     );
   }
 
-  Widget _buildEmptyState(Color primary, Color textPrimary, Color textSecondary) {
+  Widget _buildEmptyState(
+    Color primary,
+    Color textPrimary,
+    Color textSecondary,
+  ) {
     return EmptyStateWidget(
       icon: Icons.bookmark_border,
       title: _t('empty'),
       subtitle: _t('emptyDesc'),
       onAction: () async {
-        final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => StoryListScreen(initialLang: _currentLang)));
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StoryListScreen(initialLang: _currentLang),
+          ),
+        );
         if (result == true) _loadBookshelf();
       },
       actionText: _t('browse'),
@@ -292,7 +313,15 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
 
     return GestureDetector(
       onTap: () async {
-        final changed = await Navigator.push(context, MaterialPageRoute(builder: (context) => StoryDetailScreen(storyId: story['id'], initialLang: _currentLang)));
+        final changed = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StoryDetailScreen(
+              storyId: story['id'],
+              initialLang: _currentLang,
+            ),
+          ),
+        );
         if (changed == true) await _loadBookshelf();
       },
       child: Container(
@@ -300,7 +329,14 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
           color: surfaceColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: borderColor),
-          boxShadow: [BoxShadow(color: primary.withAlpha(20), blurRadius: 12, offset: const Offset(0, 4), spreadRadius: -4)],
+          boxShadow: [
+            BoxShadow(
+              color: primary.withAlpha(20),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+              spreadRadius: -4,
+            ),
+          ],
         ),
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -314,14 +350,21 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
                   color: secondary.withAlpha(38),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text(story['ethnic'], style: TextStyle(fontSize: 11, color: secondary)),
+                child: Text(
+                  story['ethnic'],
+                  style: TextStyle(fontSize: 11, color: secondary),
+                ),
               ),
               const SizedBox(height: 8),
             ],
             // 标题
             Text(
               displayTitle,
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: textPrimary),
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: textPrimary,
+              ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -334,7 +377,10 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
                   children: [
                     Icon(Icons.star_border, size: 14, color: textSecondary),
                     const SizedBox(width: 4),
-                    Text(addedDate, style: TextStyle(fontSize: 11, color: textSecondary)),
+                    Text(
+                      addedDate,
+                      style: TextStyle(fontSize: 11, color: textSecondary),
+                    ),
                   ],
                 ),
                 GestureDetector(
