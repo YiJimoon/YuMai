@@ -15,13 +15,6 @@ String detectLanguage(String text) {
 
 class ApiService {
   // 后端接口基础地址
-  // 优先级：--dart-define=API_BASE_URL=xxx > 平台自动检测默认值
-  //
-  // 各场景说明：
-  //   Web浏览器           → http://127.0.0.1:8000
-  //   Android模拟器       → http://10.0.2.2:8000  （模拟器内10.0.2.2指向宿主机）
-  //   iOS模拟器           → http://127.0.0.1:8000
-  //   真机（同一局域网）   → flutter run --dart-define=API_BASE_URL=http://172.27.68.202:8000
   static String get baseUrl {
     const envUrl = String.fromEnvironment('API_BASE_URL');
     if (envUrl.isNotEmpty) return envUrl;
@@ -31,22 +24,17 @@ class ApiService {
     return 'http://127.0.0.1:8000';
   }
 
-  // 离线存储键名
   static const String storageKey = 'yumai_offline_stories';
 
-  // 1. 获取故事列表
-  // GET /stories
-  static Future<List<Story>> getStories() async {
+  // 1. 获取故事列表（支持多语言）
+  static Future<List<Story>> getStories({String lang = 'zh'}) async {
     try {
-      // print('📡 请求故事列表: $baseUrl/stories');
       final response = await http
           .get(
-            Uri.parse('$baseUrl/stories'),
+            Uri.parse('$baseUrl/stories?lang=$lang'),
             headers: {'Content-Type': 'application/json'},
           )
-          .timeout(const Duration(seconds: 5)); // 5秒超时
-
-      // print('📡 响应状态码: ${response.statusCode}');
+          .timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
@@ -54,18 +42,14 @@ class ApiService {
           return data.map((item) => Story.fromListJson(item)).toList();
         }
       }
-
-      // 后端无数据或请求失败，使用模拟数据
-      // print('⚠️ 使用模拟数据');
+      // 降级：使用模拟数据（模拟数据只有中文）
       return _getMockStories();
     } catch (e) {
-      // print('❌ 网络请求错误: $e');
-      // 网络错误时也返回模拟数据
       return _getMockStories();
     }
   }
 
-  /// 模拟故事数据（用于演示）
+  /// 模拟故事数据（仅中文）
   static List<Story> _getMockStories() {
     return [
       Story(
@@ -84,7 +68,7 @@ class ApiService {
 每一次战斗，格萨尔王都是为了保护弱小百姓，为了正义而战。他不仅是一位勇猛的战士，更是一位仁爱之师。
 
 格萨尔王的故事，是藏族人民世代传颂的英雄史诗，也是世界非物质文化遗产的瑰宝。''',
-        yiText: '', // 藏族故事没有彝语，留空
+        yiText: '',
         tibetanText: '''༄༅། །གེ་སར་རྒྱལ་པོའི་སྒྲུང་།
 
 དུས་རབས་རིང་པོ་ཞིག་གི་གོང་དུ། བོད་ཀྱི་ཡུལ་དུ་གེ་སར་རྒྱལ་པོ་ཞེས་པའི་དཔའ་བོ་ཆེན་པོ་ཞིག་སྐྱེས་ཏེ། ཁྲག་འཐུང་སྡེ་དགོང་རྣམས་བཏུལ་ནས་མི་དམངས་ལ་བདེ་སྐྱིད་ཀྱི་འཚོ་བ་སྤྲད་པ་ཡིན།
@@ -117,15 +101,14 @@ class ApiService {
 ꀋꏂꃀ ꆏ ꉌꂵꆏ ꊷꆣꀕ，ꋌꊂꆏ ꀋꁧꄈꌠ，ꀋꏂꃀ ꌺꇖꅀꀋꅐ，ꃅꃄꇖꈓ ꋋꇅꆹ ꉡꆹ ꉌꐡꀋꐥ。
 
 ꀋꏂꃀ ꉌꂵ ꑌ ꐛꀕ，ꉢꊈꀋꁧ ꇬꄉ ꉢꊈꄈꇈ，ꀋꏂꃀ ꑠꑵ ꉌꊭꀕꑴꌦ。''',
-        tibetanText: '', // 彝族故事没有藏语，留空
+        tibetanText: '',
         coverImage: null,
       ),
     ];
   }
 
-  // 1.1 搜索故事
-  // GET /stories/search?query=
-  static Future<List<Story>> searchStories(String query) async {
+  // 1.1 搜索故事（支持多语言）
+  static Future<List<Story>> searchStories(String query, {String lang = 'zh'}) async {
     final trimmed = query.trim();
     if (trimmed.isEmpty) {
       return [];
@@ -133,24 +116,19 @@ class ApiService {
 
     try {
       final encodedQuery = Uri.encodeComponent(trimmed);
-      final uri = Uri.parse('$baseUrl/stories/search?query=$encodedQuery');
-      // print('📡 请求故事搜索: $uri');
+      final uri = Uri.parse('$baseUrl/stories/search?query=$encodedQuery&lang=$lang');
       final response = await http
           .get(uri, headers: {'Content-Type': 'application/json'})
           .timeout(const Duration(seconds: 5));
 
-      // print('📡 搜索响应状态码: ${response.statusCode}');
-
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         if (data.isNotEmpty) {
-          // print('✅ 搜索结果数量: ${data.length}');
           return data.map((item) => Story.fromListJson(item)).toList();
         }
       }
 
-      // 使用模拟搜索
-      // print('⚠️ 使用模拟搜索');
+      // 降级：模拟搜索（仅中文）
       final mockStories = _getMockStories();
       return mockStories
           .where(
@@ -159,8 +137,6 @@ class ApiService {
           )
           .toList();
     } catch (e) {
-      // print('❌ 搜索错误: $e');
-      // 网络错误时也返回模拟搜索结果
       final mockStories = _getMockStories();
       return mockStories
           .where(
@@ -171,66 +147,41 @@ class ApiService {
     }
   }
 
-  // 2. 获取故事详情
-  // GET /story/{story_id}
-  static Future<Story?> getStoryDetail(int storyId) async {
+  // 2. 获取故事详情（支持多语言）
+  static Future<Story?> getStoryDetail(int storyId, {String lang = 'zh'}) async {
     try {
-      // print('📡 请求故事详情: $baseUrl/story/$storyId');
       final response = await http
           .get(
-            Uri.parse('$baseUrl/story/$storyId'),
+            Uri.parse('$baseUrl/story/$storyId?lang=$lang'),
             headers: {'Content-Type': 'application/json'},
           )
-          .timeout(const Duration(seconds: 5)); // 5秒超时
-
-      // print('📡 响应状态码: ${response.statusCode}');
+          .timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
-
         if (data.containsKey('error')) {
-          // print('❌ 获取故事详情失败: ${data['error']}');
-          // 返回模拟数据
           return _getMockStoryDetail(storyId);
         }
-
         return Story.fromJson(data);
       } else {
-        // print('❌ 获取故事详情失败，状态码: ${response.statusCode}');
-        // 返回模拟数据
         return _getMockStoryDetail(storyId);
       }
     } catch (e) {
-      // print('❌ 网络请求错误 (getStoryDetail): $e');
-      // 网络错误时返回模拟数据
       return _getMockStoryDetail(storyId);
     }
   }
 
   /// 获取模拟故事详情（用于演示）
   static Story? _getMockStoryDetail(int storyId) {
-    // 获取所有模拟故事列表
     final mockStories = _getMockStories();
-
-    // 根据 ID 查找对应的故事
     final story = mockStories.firstWhere(
       (s) => s.id == storyId,
-      orElse: () {
-        // print('⚠️ 未找到 ID 为 $storyId 的故事，返回第一个');
-        return mockStories.first;
-      },
+      orElse: () => mockStories.first,
     );
-
-    // print('📖 使用模拟详情数据: ${story.title}');
     return story;
   }
 
-  // 3. 故事问答
-  // POST /ask
-  // useRag: 是否启用全局知识库检索（默认 false，仅用当前故事）
-  // history: 对话历史，格式为 [{"role": "user"/"assistant", "content": "..."}]
-  // lang: 回答语言（zh/bo/ii）
-  // 返回 Map 包含 answer, source, rag_sources 或 error
+  // 3. 故事问答（已支持 lang 参数）
   static Future<Map<String, dynamic>> askQuestion({
     int? storyId,
     required String question,
@@ -239,7 +190,6 @@ class ApiService {
     String lang = 'zh',
   }) async {
     try {
-      // print('📡 提问: story_id=$storyId, question=$question, use_rag=$useRag');
       final response = await http.post(
         Uri.parse('$baseUrl/ask'),
         headers: {'Content-Type': 'application/json'},
@@ -247,12 +197,10 @@ class ApiService {
           'story_id': storyId,
           'question': question,
           'use_rag': useRag,
-          'history': ?history,
+          'history': history,
           'lang': lang,
         }),
       );
-
-      // print('📡 响应状态码: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
@@ -263,7 +211,6 @@ class ApiService {
         return {'error': '请求失败'};
       }
     } catch (e) {
-      // print('❌ 网络请求错误 (askQuestion): $e');
       return {'error': '网络错误'};
     }
   }
@@ -274,13 +221,11 @@ class ApiService {
       final response = await http.get(Uri.parse('$baseUrl/'));
       return response.statusCode == 200;
     } catch (e) {
-      // print('❌ 后端连接测试失败: $e');
       return false;
     }
   }
 
   // 5. 语音转文字
-  // POST /stt
   static Future<String> speechToText(Uint8List audioBytes) async {
     try {
       final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/stt'));
@@ -318,19 +263,14 @@ class ApiService {
   }
 
   // 6. 文本转语音音频
-  // GET /tts/{story_id}
   static Future<Uint8List?> getTtsAudio(int storyId) async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/tts/$storyId'));
-
       if (response.statusCode == 200) {
         return response.bodyBytes;
       }
-
-      // print('❌ 获取 TTS 音频失败，状态码: ${response.statusCode}');
       return null;
     } catch (e) {
-      // print('❌ 网络请求错误 (getTtsAudio): $e');
       return null;
     }
   }
@@ -342,7 +282,6 @@ class ApiService {
       final String? stored = prefs.getString(storageKey);
       return stored != null ? json.decode(stored) : {};
     } catch (e) {
-      // print('❌ 读取离线存储失败: $e');
       return {};
     }
   }
@@ -353,9 +292,8 @@ class ApiService {
       final stories = await getOfflineStories();
       stories[story.id.toString()] = story.toJson();
       await prefs.setString(storageKey, json.encode(stories));
-      // print('✅ 故事已保存到离线: ${story.title}');
     } catch (e) {
-      // print('❌ 保存离线故事失败: $e');
+      // 忽略保存错误
     }
   }
 
@@ -370,7 +308,6 @@ class ApiService {
       final jsonData = stories[storyId.toString()];
       return jsonData != null ? Story.fromJson(jsonData) : null;
     } catch (e) {
-      // print('❌ 获取离线故事失败: $e');
       return null;
     }
   }
@@ -379,9 +316,8 @@ class ApiService {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(storageKey, json.encode({}));
-      // print('✅ 已清除所有离线故事');
     } catch (e) {
-      // print('❌ 清除离线存储失败: $e');
+      // 忽略清除错误
     }
   }
 

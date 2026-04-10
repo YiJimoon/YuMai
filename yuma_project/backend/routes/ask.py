@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional
+from typing import List
 from backend.services.ask_service import answer_question
 
 router = APIRouter()
@@ -12,10 +13,10 @@ class HistoryMessage(BaseModel):
 
 
 class AskRequest(BaseModel):
-    story_id: int | None = None
+    story_id: Optional[int] = None
     question: str
     use_rag: bool = True
-    history: List[HistoryMessage] | None = None
+    history: Optional[List[HistoryMessage]] = None
     lang: str = 'zh'   # 问答语言：zh/bo/ii
 
 

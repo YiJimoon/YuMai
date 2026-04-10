@@ -8,7 +8,7 @@ from backend.routes.root import router as root_router
 from backend.routes.stories import router as stories_router
 from backend.routes.ask import router as ask_router
 from backend.routes.tts import router as tts_router
-from backend.routes.stt import router as stt_router
+#from backend.routes.stt import router as stt_router
 
 
 app = FastAPI()
@@ -31,4 +31,4 @@ app.include_router(root_router)
 app.include_router(stories_router)
 app.include_router(ask_router)
 app.include_router(tts_router)
-app.include_router(stt_router)
+#app.include_router(stt_router)

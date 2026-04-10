@@ -36,6 +36,9 @@ class _StoryListScreenState extends State<StoryListScreen> {
   // 多语言翻译 - 直接初始化，确保 build() 前就已准备好
   final Map<String, Map<String, String>> _translations = AppTranslations.storyList;
 
+  // 记录上一次的语言，用于避免重复加载
+  String? _previousLang;
+
   String get _currentLang {
     try {
       return context.watch<LanguageProvider>().currentLang;
@@ -92,6 +95,16 @@ class _StoryListScreenState extends State<StoryListScreen> {
     _loadStories();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final currentLang = _currentLang;
+    if (_previousLang != currentLang) {
+      _previousLang = currentLang;
+      _loadStories();
+    }
+  }
+
   // Get story list (completely from backend)
   Future<void> _loadStories() async {
     setState(() {
@@ -100,17 +113,13 @@ class _StoryListScreenState extends State<StoryListScreen> {
     });
 
     try {
-      final stories = await ApiService.getStories();
-
+      // 关键修改：传入当前语言
+      final stories = await ApiService.getStories(lang: _currentLang);
       setState(() {
         _stories = stories;
         _applyFilter();
         _isLoading = false;
       });
-      // print('Loaded story count: ${stories.length}');
-      if (stories.isNotEmpty) {
-        // print('First story title: ${stories.first.title}');
-      }
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -166,7 +175,8 @@ class _StoryListScreenState extends State<StoryListScreen> {
         _isSearching = true;
       });
 
-      final results = await ApiService.searchStories(trimmed);
+      // 关键修改：传入当前语言
+      final results = await ApiService.searchStories(trimmed, lang: _currentLang);
       if (!mounted) return;
 
       setState(() {

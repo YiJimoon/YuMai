@@ -5,25 +5,32 @@ import '../models/story.dart';
 class OfflineStorageService {
   static const String _offlineKey = 'yumai_offline_stories';
 
-  static Future<void> saveStory(Story story) async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? data = prefs.getString(_offlineKey);
-    Map<String, dynamic> offlineMap = {};
-    if (data != null) {
-      offlineMap = json.decode(data);
+  /// 保存故事，返回 true 表示成功，false 表示失败
+  static Future<bool> saveStory(Story story) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? data = prefs.getString(_offlineKey);
+      Map<String, dynamic> offlineMap = {};
+      if (data != null) {
+        offlineMap = json.decode(data);
+      }
+      final storyId = story.id.toString();
+      final offlineData = {
+        'id': story.id,
+        'title': story.title,
+        'ethnic': story.ethnic,
+        'content_zh': story.chineseText,
+        'content_yi': story.yiText,
+        'content_zang': story.tibetanText,
+        'downloadedAt': DateTime.now().toIso8601String(),
+      };
+      offlineMap[storyId] = offlineData;
+      await prefs.setString(_offlineKey, json.encode(offlineMap));
+      return true;
+    } catch (e) {
+      print('saveStory error: $e');  // 使用 print 代替 debugPrint
+      return false;
     }
-    final storyId = story.id.toString();
-    final offlineData = {
-      'id': story.id,
-      'title': story.title,
-      'ethnic': story.ethnic,
-      'content_zh': story.chineseText,
-      'content_yi': story.yiText,
-      'content_zang': story.tibetanText,
-      'downloadedAt': DateTime.now().toIso8601String(),
-    };
-    offlineMap[storyId] = offlineData;
-    await prefs.setString(_offlineKey, json.encode(offlineMap));
   }
 
   static Future<List<Map<String, dynamic>>> getAllStories() async {

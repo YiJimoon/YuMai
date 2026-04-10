@@ -38,14 +38,12 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   final String _historyKey = 'yumai_history';
 
   final TextEditingController _questionController = TextEditingController();
-  final List<Map<String, String>> _chatMessages =
-      []; // {role: 'user'/'ai', content: ''}
+  final List<Map<String, String>> _chatMessages = [];
   bool _isAsking = false;
   int _currentSentenceIndex = -1;
   bool _isRecording = false;
   final AudioPlayer _audioPlayer = AudioPlayer();
 
-  /// 详情页局部语言状态，不影响全局 LanguageProvider
   String? _localLang;
 
   final Map<String, Map<String, String>> _translations =
@@ -61,15 +59,77 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   }
 
   String _t(String key) {
-    final lang = context.watch<LanguageProvider>().currentLang;
-    final safeLang = ['zh', 'bo', 'ii'].contains(lang) ? lang : 'zh';
-    return _translations[safeLang]?[key] ?? _translations['zh']?[key] ?? key;
-  }
+  // 使用 listen: false，避免在异步回调中触发重建错误
+  final lang = Provider.of<LanguageProvider>(context, listen: false).currentLang;
+  final safeLang = ['zh', 'bo', 'ii'].contains(lang) ? lang : 'zh';
+  return _translations[safeLang]?[key] ?? _translations['zh']?[key] ?? key;
+}
 
   @override
   void initState() {
     super.initState();
     _loadStoryDetail();
+  }
+
+  /// 居中紧凑型 Toast（支持成功/错误样式）
+  void _showCenteredToast(String message, {bool isError = false}) {
+    if (!mounted) return;
+    final overlayState = Overlay.of(context);
+    late OverlayEntry overlayEntry;
+    overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: MediaQuery.of(context).size.height * 0.5 - 40,
+        left: 0,
+        right: 0,
+        child: Material(
+          color: Colors.transparent,
+          child: Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 200),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: isError ? Colors.redAccent : Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha(30),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    isError ? Icons.error_outline : Icons.check_circle,
+                    color: isError ? Colors.white : Colors.green,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      message,
+                      style: TextStyle(
+                        color: isError ? Colors.white : Colors.black87,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    overlayState.insert(overlayEntry);
+    Future.delayed(const Duration(seconds: 2), () {
+      if (overlayEntry.mounted) overlayEntry.remove();
+    });
   }
 
   Future<void> _loadStoryDetail() async {
@@ -91,7 +151,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
       await _loadBookshelfStatus(story.id);
       await _addToHistory(story);
 
-      // 检查是否有保存的阅读位置
       final savedPageIndex = await _getSavedReadingPageIndexDirect(
         widget.storyId,
       );
@@ -101,7 +160,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
         _isLoading = false;
       });
 
-      // 如果有保存的阅读位置且不是第一页，提示用户继续阅读
       if (savedPageIndex > 0 && mounted) {
         _showContinueReadingDialog(story, savedPageIndex);
       }
@@ -649,25 +707,31 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
           const SizedBox(width: 4),
 
           // 设置
-          _HeaderIconButton(
-            icon: Icons.text_fields,
-            color: textSecondary,
-            onTap: _showFontSettingsDialog,
-          ),
 
-          const SizedBox(width: 4),
-
-          // 下载
+          // 下载按钮（带验证逻辑）
           _HeaderIconButton(
             icon: Icons.download_outlined,
             color: textSecondary,
             onTap: () async {
               if (_story == null) {
-                _showSnackBar(_t('storyNotFound'));
+                _showCenteredToast(_t('storyNotFound'), isError: true);
                 return;
               }
-              await OfflineStorageService.saveStory(_story!);
-              _showSnackBar(_t('downloaded'));
+              try {
+                await OfflineStorageService.saveStory(_story!);
+                // 验证是否真的保存成功
+                final isSaved = await OfflineStorageService.isDownloaded(
+                    _story!.id.toString());
+                if (isSaved) {
+                  _showCenteredToast(_t('downloaded'), isError: false);
+                } else {
+                  _showCenteredToast('保存失败，请重试', isError: true);
+                }
+              } catch (e) {
+                debugPrint('保存异常: $e');
+                _showCenteredToast('保存失败: ${e.toString().substring(0, 30)}',
+                    isError: true);
+              }
             },
           ),
 
@@ -825,7 +889,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final content = _getCurrentContent();
-    // 预览：取前100字
     final preview = content.length > 100
         ? '${content.substring(0, 100)}...'
         : content;
@@ -852,7 +915,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
       ),
       child: Column(
         children: [
-          // 封面区域
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
@@ -866,7 +928,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 装饰图标
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -880,7 +941,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // 预览文字
                 Text(
                   preview,
                   style: TextStyle(
@@ -897,7 +957,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 20),
-                // 进入阅读按钮
                 GestureDetector(
                   onTap: _enterReader,
                   child: Container(
@@ -966,7 +1025,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
       ),
       child: Column(
         children: [
-          // 顶部标签栏
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
             child: Row(
@@ -1008,7 +1066,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
               ],
             ),
           ),
-          // 横向卡片列表
           Expanded(
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
@@ -1017,7 +1074,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
               itemBuilder: (context, index) {
                 final sentence = sentences[index];
                 final isActive = _currentSentenceIndex == index;
-                // 序号圆圈的几种配色
                 final badgeColors = [
                   primary,
                   secondary,
@@ -1061,7 +1117,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 序号 + 句子
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1110,7 +1165,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        // 操作按钮行
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -1202,7 +1256,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 标题
           Row(
             children: [
               Container(
@@ -1258,10 +1311,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                 ),
             ],
           ),
-
           const SizedBox(height: 16),
-
-          // 消息列表
           if (_chatMessages.isEmpty)
             _buildEmptyState(textSecondary, secondary)
           else
@@ -1274,10 +1324,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
               textSecondary,
               isDark,
             ),
-
           const SizedBox(height: 16),
-
-          // 输入框
           _buildInputArea(
             primary,
             secondary,
@@ -1603,8 +1650,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
     });
 
     try {
-      // 构建对话历史（不包括刚添加的用户消息）
-      final historyLength = _chatMessages.length - 1; // 减去刚添加的用户消息
+      final historyLength = _chatMessages.length - 1;
       final history = historyLength > 0
           ? _chatMessages
                 .take(historyLength)
